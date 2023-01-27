@@ -1,26 +1,45 @@
-import React from 'react';
-import { Results } from 'shared/poll-types';
+import React, { useState } from 'react';
+import { RoundResult } from 'shared/poll-types';
 
 type ResultCard = {
-  results: DeepReadonly<Results>;
+  result: DeepReadonly<RoundResult>;
 };
 
-const ResultCard: React.FC<ResultCard> = ({ results }) => {
+const ResultCard: React.FC<ResultCard> = ({ result }) => {
+  const [showPercent, setShowPercent] = useState(false);
+  const totalVotes = result.totalVotes;
+
   return (
     <>
       <div className="grid grid-cols-3 gap-4 pb-2 my-2 border-b-2 border-solid border-purple-70 pr-4">
         <div className="col-span-2 font-semibold">Candidate</div>
-        <div className="col-span-1 font-semibold text-right">Score</div>
+        <div className="col-span-1 font-semibold text-right">
+          <button
+            onClick={() => setShowPercent(false)}
+            className={showPercent ? '' : 'text-orange-700'}
+          >
+            Count
+          </button>
+          {' / '}
+          <button
+            onClick={() => setShowPercent(true)}
+            className={showPercent ? 'text-orange-700' : ''}
+          >
+            %
+          </button>
+        </div>
       </div>
       <div className="divide-y-2 overflow-y-auto pr-4">
-        {results.map((result) => (
+        {result.votes.map((candidate) => (
           <div
-            key={result.nominationID}
+            key={candidate.nominationID}
             className="grid grid-cols-3 gap-4 my-1 items-center"
           >
-            <div className="col-span-2">{result.nominationText}</div>
+            <div className="col-span-2">{candidate.text}</div>
             <div className="col-span-1 text-right">
-              {result.score.toFixed(2)}
+              {showPercent
+                ? ((candidate.count / totalVotes) * 100).toFixed(2)
+                : candidate.count}
             </div>
           </div>
         ))}
